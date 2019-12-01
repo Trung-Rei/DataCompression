@@ -1,8 +1,7 @@
 #pragma once
-#include "InStream.h"
-#include "OutStream.h"
+#include "CompressBase.h"
 
-class Huffman
+class Huffman : public CompressBase
 {
 	struct Node
 	{
@@ -16,18 +15,17 @@ class Huffman
 		bool operator()(Node* x, Node* y) { return x->freq > y->freq; }
 	};
 	Node* _huffmanTree;
-	unsigned char** _dictionary;
-	void buildHuffmanTree(const char* inPath);
+	unsigned char _dictionary[256][33];
+	int buildHuffmanTree(std::string inPath);
 	void buildDictionary();
 	void _buildDictionary(Node* node, int depth, char* code);
 	void readHuffmanTree(InStream& in, Node*& node);
 	void writeHuffmanTree(OutStream& out, Node* node);
 	static void setBit(char* target, int pos, int bit);
 	static void disposeTree(Node* root);
+	void encode(std::string inPath, OutStream& out);
+	void decode(InStream& in, std::string outPath);
 public:
-	void encode(const char* inPath, OutStream& out);
-	void decode(InStream& in, const char* outPath);
-
 	Huffman();
 	~Huffman();
 };

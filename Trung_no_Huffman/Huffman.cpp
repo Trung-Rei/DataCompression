@@ -3,10 +3,11 @@
 
 using namespace std;
 
-void Huffman::buildHuffmanTree(const char* inPath)
+int Huffman::buildHuffmanTree(std::string inPath)
 {
 	InStream in(inPath);
-	Node* address[256] = { nullptr };
+	Node* address[256];
+	for (int i = 0; i < 256; ++i) address[i] = nullptr;
 	int c;
 	while ((c = in.get(8)) != -1)
 	{
@@ -17,19 +18,27 @@ void Huffman::buildHuffmanTree(const char* inPath)
 	priority_queue<Node*, vector<Node*>, Compare> minHeap;
 	for (int i = 0; i < 256; ++i)
 		if (address[i] != nullptr) minHeap.push(address[i]);
+	if (minHeap.size() == 1)
+	{
+		Node* tmp = minHeap.top();
+		minHeap.push(new Node(0, tmp->chr, tmp->left, tmp->right));
+	}
+	int outputSize = 0;
 	while (minHeap.size() > 1)
 	{
 		Node* x = minHeap.top(); minHeap.pop();
 		Node* y = minHeap.top(); minHeap.pop();
 		Node* node = new Node(x->freq + y->freq, 0, x, y);
+		outputSize += node->freq;
 		minHeap.push(node);
 	}
 	_huffmanTree = minHeap.top();
+	return outputSize;
 }
 
 void Huffman::buildDictionary()
 {
-	char code[32] = { 0 };
+	char code[32];
 	_buildDictionary(_huffmanTree, 0, code);
 }
 
@@ -51,7 +60,7 @@ void Huffman::_buildDictionary(Node* node, int depth, char* code)
 
 void Huffman::readHuffmanTree(InStream& in, Node*& node)
 {
-	int state = in.get(2);
+	int state = in.get(1);
 	node = new Node(0, 0, nullptr, nullptr);
 	if (state == 0)
 	{
@@ -65,8 +74,8 @@ void Huffman::readHuffmanTree(InStream& in, Node*& node)
 void Huffman::writeHuffmanTree(OutStream& out, Node* node)
 {
 	int state = 0;
-	if (node->right != nullptr) state = 3;
-	out.push(state, 2);
+	if (node->right != nullptr) state = 1;
+	out.push(state, 1);
 	if (state == 0)
 	{
 		out.push(node->chr, 8);
@@ -92,23 +101,26 @@ void Huffman::disposeTree(Node* root)
 	delete root;
 }
 
-void Huffman::encode(const char* inPath, OutStream& out)
+void Huffman::encode(std::string inPath, OutStream& out)
 {
 	if (_huffmanTree != nullptr) disposeTree(_huffmanTree);
-	buildHuffmanTree(inPath);
+	int outputSize = buildHuffmanTree(inPath);
 	buildDictionary();
 	writeHuffmanTree(out, _huffmanTree);
+	out.push(outputSize, 32);
 	InStream in(inPath);
 	int c;
 	while ((c = in.get(8)) != -1)
 		out.push((char*)_dictionary[c] + 1, *_dictionary[c]);
 }
 
-void Huffman::decode(InStream& in, const char* outPath)
+void Huffman::decode(InStream& in, std::string outPath)
 {
+	in.resetLim();
 	if (_huffmanTree != nullptr) disposeTree(_huffmanTree);
 	OutStream out(outPath);
 	readHuffmanTree(in, _huffmanTree);
+	in.setLim(in.get(32));
 	Node* curNode = _huffmanTree;
 	int c;
 	int bitCount = 31;
@@ -132,16 +144,9 @@ void Huffman::decode(InStream& in, const char* outPath)
 Huffman::Huffman()
 {
 	_huffmanTree = nullptr;
-	_dictionary = new unsigned char* [256];
-	for (int i = 0; i < 256; ++i)
-		_dictionary[i] = new unsigned char[33];
 }
 
 Huffman::~Huffman()
 {
 	disposeTree(_huffmanTree);
-	for (int i = 0; i < 256; ++i)
-		delete[] _dictionary[i];
-	delete[] _dictionary;
-
 }
