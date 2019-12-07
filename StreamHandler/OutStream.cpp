@@ -1,4 +1,4 @@
-#include "OutStream.h"
+﻿#include "OutStream.h"
 
 using namespace std;
 
@@ -17,8 +17,11 @@ void OutStream::addData(void* p, int pos, int data, int count)
 	*(long long*)p = *(long long*)p | (tmp << pos);
 }
 
+//đẩy bitCount bit đầu tiên của data vào stream
 void OutStream::push(int data, int bitCount)
 {
+	// kiểm tra _data còn chỗ trống để đẩy bit vào ko
+	//nếu ko thì đẩy bớt bit qua buffer
 	if (_remainBit >= 32)
 	{
 		int tmp = getData(&_data, 0, 32);
@@ -29,6 +32,7 @@ void OutStream::push(int data, int bitCount)
 	}
 	addData(&_data, _remainBit, data, bitCount);
 	_remainBit += bitCount;
+	//nếu buffer đầy thì ghi buffer ra file
 	if (_buffCur >= _writeSize)
 	{
 		_out.write(_buffer, _writeSize);
@@ -36,6 +40,7 @@ void OutStream::push(int data, int bitCount)
 	}
 }
 
+//đẩy bitCount bit từ vùng nhớ data vào stream
 void OutStream::push(const char* data, int bitCount)
 {
 	while (bitCount >= 32)
@@ -47,6 +52,7 @@ void OutStream::push(const char* data, int bitCount)
 	push(*(int*)data, bitCount);
 }
 
+//ghi số bit còn lại trong buffer ra file
 void OutStream::writeAll()
 {
 	push(0, 0);

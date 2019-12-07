@@ -1,9 +1,12 @@
-#include "Compression.h"
+﻿#include "DataCompressor.h"
 #include <filesystem>
 
 using namespace std;
 
-void Compression::encode(std::string inPath, OutStream& out)
+//thực hiện việc nén thư mục,
+//đầu vào là thư mục cần nén, đầu ra là out stream của file nén
+//cây thư mục được nén theo đệ quy
+void DataCompressor::encode(std::string inPath, OutStream& out)
 {
 	string name = getName(inPath);
 	out.push(name.length(), 8);
@@ -25,7 +28,9 @@ void Compression::encode(std::string inPath, OutStream& out)
 		encode(i.path().string(), out);
 }
 
-void Compression::decode(InStream& in, std::string outDirPath)
+//thực hiện việc giải nén thư mục,
+//đầu vào là đoạn mã nén từ in stream, outDirPath là thư mục để giải nén vào
+void DataCompressor::decode(InStream& in, std::string outDirPath)
 {
 	in.resetLim();
 	int nameChrCount = in.get(8);
@@ -38,13 +43,14 @@ void Compression::decode(InStream& in, std::string outDirPath)
 		_algorithm->decode(in, targetPath);
 		return;
 	}
-	filesystem::create_directory(targetPath.c_str());
+	filesystem::create_directory(targetPath);
 	int itemCount = in.get(32);
 	for (int i = 0; i < itemCount; ++i)
 		decode(in, targetPath);
 }
 
-std::string Compression::getName(std::string path)
+//lấy tên đối tượng từ đường dẫn
+std::string DataCompressor::getName(std::string path)
 {
 	int last = path.length();
 	while (path[last - 1] == 47 || path[last - 1] == 92) --last;
@@ -52,20 +58,22 @@ std::string Compression::getName(std::string path)
 	while (first > 0 && path[first - 1] != 47 && path[first - 1] != 92) --first;
 	return path.substr(first, last - first);
 }
-
-void Compression::encode(std::string inPath, std::string outPath)
+//thực hiện nén file hoặc thư mục có đường dẫn inPath ra file có đường dẫn outPath
+void DataCompressor::encode(std::string inPath, std::string outPath)
 {
 	OutStream out(outPath);
 	encode(inPath, out);
 }
 
-void Compression::decode(std::string inPath, std::string outDirPath)
+//thực hiện giải nén file có đường dẫn inPath vào thư mục có đường dẫn outDirPath
+void DataCompressor::decode(std::string inPath, std::string outDirPath)
 {
 	InStream in(inPath);
 	decode(in, outDirPath);
 }
 
-Compression::Compression(CompressBase* algo)
+//khởi tạo máy nén sử dụng bộ mã hóa algo
+DataCompressor::DataCompressor(CompressorBase* algo)
 {
 	_algorithm = algo;
 }

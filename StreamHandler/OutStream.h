@@ -1,8 +1,10 @@
-#pragma once
+﻿#pragma once
 #include <fstream>
 
+//adapter của ofstream
 class OutStream
 {
+	//tương tự InStream
 	std::ofstream _out;
 	static const int blockSize;
 	char* _buffer;
