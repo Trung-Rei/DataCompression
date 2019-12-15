@@ -36,6 +36,7 @@ Huffman::Node* Huffman::buildHuffmanTree(std::string inPath, long long& outputSi
 		minHeap.push(node);
 	}
 	//gốc của cây chính là nút duy nhất còn lại của min heap
+	if (minHeap.empty()) return nullptr;
 	return minHeap.top();
 }
 
@@ -121,12 +122,13 @@ void Huffman::encode(std::string inPath, OutStream& out)
 {
 	long long outputSize;
 	Node* huffmanTree = buildHuffmanTree(inPath, outputSize);
+	out.push((char*)&outputSize, 64);
+	if (outputSize == 0) return;
 	unsigned char** dictionary = new unsigned char* [256];
 	for (int i = 0; i < 256; ++i)
 		dictionary[i] = new unsigned char[33];
 	buildDictionary(dictionary, huffmanTree);
 	writeHuffmanTree(out, huffmanTree);
-	out.push((char*)&outputSize, 64);
 	InStream in(inPath);
 	int c;
 	//đọc kí tự của file, dịch qua từ điển và ghi vào out stream
@@ -142,10 +144,11 @@ void Huffman::decode(InStream& in, std::string outPath)
 {
 	in.resetLim();
 	OutStream out(outPath);
-	Node* huffmanTree;
-	readHuffmanTree(in, huffmanTree);
 	long long lim;
 	in.get((char*)&lim, 64);
+	if (lim == 0) return;
+	Node* huffmanTree;
+	readHuffmanTree(in, huffmanTree);
 	in.setLim(lim);
 	Node* curNode = huffmanTree;
 	int c;
