@@ -2,3 +2,4 @@ https://vi.wikipedia.org/wiki/M%C3%A3_h%C3%B3a_Huffman
 https://vi.wikipedia.org/wiki/LZW
 https://www.geeksforgeeks.org/lzw-lempel-ziv-welch-compression-technique/
 http://people.cs.pitt.edu/~kirk/cs1501/assignments/lzw/lzw.cxx
+https://www.geeksforgeeks.org/huffman-coding-greedy-algo-3/
