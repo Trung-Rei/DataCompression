@@ -27,8 +27,8 @@ void startMessage()
 
 int menu()
 {
-	cout << "1. Compress file and folder using Huffman algorithm" << endl;
-	cout << "2. Compress file using LZW algorithm" << endl;
+	cout << "1. Huffman compression" << endl;
+	cout << "2. LZW compression" << endl;
 	cout << "Your option: ";
 	int option;
 	cin >> option;

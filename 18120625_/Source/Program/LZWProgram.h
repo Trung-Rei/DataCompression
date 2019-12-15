@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "CompressorProgram.h"
+#include "../Compressor/DataCompressor.h"
 #include "../Compressor/LZW.h"
 
 //program nén file theo thuật toán LZW

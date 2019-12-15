@@ -5,7 +5,7 @@ using namespace std;
 
 void LZWProgram::startMessage()
 {
-	cout << "COMPRESS FILE USING LZW ALGORITHM" << endl;
+	cout << "LZW COMPRESSION" << endl;
 }
 
 void LZWProgram::decompress(high_resolution_clock::time_point& start, high_resolution_clock::time_point& stop)
@@ -14,17 +14,16 @@ void LZWProgram::decompress(high_resolution_clock::time_point& start, high_resol
 	cout << "File to decompress (*.lzw): ";
 	string inPath;
 	getline(cin, inPath);
-	cout << "Dictionary file (*.lzw.dict): ";
-	string dictPath;
-	getline(cin, dictPath);
 	cout << "Output directory: ";
 	string outDirPath;
 	getline(cin, outDirPath);
-	LZW lzw;
+	LZW* lzw = new LZW;
+	DataCompressor compressor(lzw);
 	cout << "Decompressing..." << endl;
 	start = high_resolution_clock::now();
-	lzw.decode(inPath, outDirPath, dictPath);
+	compressor.decode(inPath, outDirPath);
 	stop = high_resolution_clock::now();
+	delete lzw;
 }
 
 void LZWProgram::compress(high_resolution_clock::time_point& start, high_resolution_clock::time_point& stop)
@@ -36,9 +35,11 @@ void LZWProgram::compress(high_resolution_clock::time_point& start, high_resolut
 	cout << "Output file (*.lzw): ";
 	string outPath;
 	getline(cin, outPath);
-	LZW lzw;
+	LZW* lzw = new LZW;
+	DataCompressor compressor(lzw);
 	cout << "Compressing..." << endl;
 	start = high_resolution_clock::now();
-	lzw.encode(inPath, outPath, outPath + ".dict");
+	compressor.encode(inPath, outPath);
 	stop = high_resolution_clock::now();
+	delete lzw;
 }

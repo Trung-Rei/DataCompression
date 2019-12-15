@@ -5,7 +5,7 @@ using namespace std;
 
 void HuffmanProgram::startMessage()
 {
-	cout << "COMPRESS FILE AND FOLDER USING HUFFMAN ALGORITHM" << endl;
+	cout << "HUFFMAN COMPRESSION" << endl;
 }
 
 void HuffmanProgram::compress(high_resolution_clock::time_point& start, high_resolution_clock::time_point& stop)
