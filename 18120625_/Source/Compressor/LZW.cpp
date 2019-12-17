@@ -12,7 +12,7 @@ void LZW::encode(std::string inPath, OutStream& out)
 		int c = in.get(8);
 		if (c == -1)
 		{
-			out.push(prefix, 12);
+			if (prefix != -1) out.push(prefix, 12);
 			break;
 		}
 		int nextPrefix = dict.find(prefix, c);
